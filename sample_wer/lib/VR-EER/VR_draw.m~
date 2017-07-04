@@ -1,0 +1,27 @@
+function [x,y] = VR_draw(wolves, sheep, percentage, param, the_two_columns, alpha)
+% draw the first two dimension unless stated otherwise
+% if alpha is not set, average will be used; otherwise weighted sum will be used
+% as decision boundary
+
+if (nargin < 5)
+    the_two_columns = [1 2];
+end;
+if (nargin < 6)
+    alpha = [0.5 0.5];
+end;
+
+%draw empirical, theoretical scatter plot and the decision boundary
+hold off;
+[samples_w, samples_s] = draw_empiric(wolves, sheep, percentage);% plot 1% of data
+hold on;
+[m,c, mu_COM_C, mu_COM_I, sigma_COM_C, sigma_COM_I] = draw_theory(the_two_columns, param, alpha);
+
+%decision boundary
+tmp = [samples_w(:,1);samples_s(:,1)];
+x= linspace(min(tmp),max(tmp),10);
+y = m * x + c;
+
+if (nargin < 6),
+else
+    plot(x,y,'k-');
+end;
