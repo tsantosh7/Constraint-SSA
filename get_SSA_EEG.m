@@ -1,8 +1,8 @@
-function [y1] = get_SSA_EEG(X, lower_limit, upper_limit)
+function [y1] = get_SSA_EEG(X, lower_limit, upper_limit,SSA_WINDOW)
 L=length(X);
-SSA_length = {100,128,256,512,1024};
-for i= 1:1:length(SSA_length)
-    [E,V,A,R,C]=ssa(X,SSA_length);
+% SSA_length = {100,128,256,512,1024};
+% for i= 1:1:length(SSA_length)
+    [E,V,A,R,C]=ssa(X,SSA_WINDOW);
     m=1e1000;
     index=0;
     index1=0;
@@ -23,4 +23,4 @@ for i= 1:1:length(SSA_length)
             y1=y1+ y;%+ (R(:,a)+R(:,b));
         end
     end
-end
+% end
