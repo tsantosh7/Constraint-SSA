@@ -38,11 +38,11 @@ labels = [ones(size(Epileptic,1),1); zeros(size(N_Healthy,1),1);zeros(size(F_Hea
 
 %% Apply LBP - 1D for Freqs and 2D for Time-Freqs
 %
-%addpath sample_wer
-%fold = 10;
-%%samplesize = size(labels , 1);
-%c = cvpartition(samplesize,  'kfold' , fold);
-load cvpartition.mat
+addpath sample_wer
+fold = 4;
+%samplesize = size(labels , 1);
+c = cvpartition(labels,  'kfold' , fold);
+%load cvpartition.mat
 
 segsize = [3,5,7,9,11];
 for k = 1:1:length(segsize) 
@@ -62,10 +62,10 @@ for i=1 : fold
    trainLabels = labels(trainIdxs,1);  % create training labels
    vLabels = labels(vIdxs,1);  % create test labels
    
-   %SVMModel = fitcsvm(trainMatrix,trainLabels,'KernelFunction','RBF',...
-    %'KernelScale','auto','Prior','empirical', 'BoxConstraint',10);
-       SVMModel = fitcsvm(trainMatrix,trainLabels,'KernelFunction','intersection_kernel',...
-           'Prior','empirical', 'BoxConstraint',0.1);
+   SVMModel = fitcsvm(trainMatrix,trainLabels,'KernelFunction','RBF',...
+    'KernelScale','auto','Prior','empirical', 'BoxConstraint',1);
+     %  SVMModel = fitcsvm(trainMatrix,trainLabels,'KernelFunction','intersection_kernel',...
+      %     'Prior', 'empirical', 'BoxConstraint',1,'Standardize',true);
      [pLabels,temp] = predict(SVMModel,vMatrix);
      scores(:,i) = temp(:,1);
      %[X(:,i),Y(:,i),~,AUC(i)] = perfcurve(vLabels,scores(:,i),0);
@@ -96,3 +96,35 @@ Stdz = cellfun(@std,f_measure,'UniformOutput',false);
 % plot(X(:,1),Y(:,1))
 % hold off
 % end
+
+%%
+Dataset_LBP = [];
+for k = 1:1:length(labels)
+[Dataset_LBP(k,:)] = [onedlbp(Dataset(k,:),3); onedlbp(Dataset(k,:),5)]';
+  
+end
+
+for i=1 : fold 
+   trainIdxs = find(c.training(i));   % find index of training set
+   vIdxs  = find(c.test(i)); % find index of test set
+   trainMatrix =   Dataset_LBP(trainIdxs,:);  % create training set
+   vMatrix  =  Dataset_LBP(vIdxs,:);  % create test set
+   trainLabels = labels(trainIdxs,1);  % create training labels
+   vLabels = labels(vIdxs,1);  % create test labels
+   
+   SVMModel = fitcsvm(trainMatrix,trainLabels,'KernelFunction','RBF',...
+    'KernelScale','auto','Prior','empirical', 'BoxConstraint',10);
+     %  SVMModel = fitcsvm(trainMatrix,trainLabels,'KernelFunction','intersection_kernel',...
+       %    'Prior', 'empirical', 'BoxConstraint',1,'Standardize',true);
+     [pLabels,temp] = predict(SVMModel,vMatrix);
+     scores(:,i) = temp(:,1);
+     %[X(:,i),Y(:,i),~,AUC(i)] = perfcurve(vLabels,scores(:,i),0);
+     hter_min_multi(i) = hter(scores(find(vLabels==1),i),scores(find(vLabels==0),i),[],0);
+     f_measure_multi(i) = Evaluate(vLabels,pLabels);
+
+   disp(i)
+end
+
+%
+mean(hter_min_multi)
+mean(f_measure_multi)

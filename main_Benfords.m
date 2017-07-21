@@ -72,3 +72,9 @@ SVMModel = fitcsvm(trainMatrix,trainLabels,'KernelFunction','RBF',...
 end
 %
 mean(f_measure)
+
+%%
+
+for i = 1:1:300
+  [dData{i},~, ~] = AnalyzeEdges(Dataset_(i,:)'); 
+end

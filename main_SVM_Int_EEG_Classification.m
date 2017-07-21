@@ -38,8 +38,8 @@ labels = [ones(size(Epileptic,1),1); zeros(size(N_Healthy,1),1);zeros(size(F_Hea
 
 %%
 
-addpath Other_codes/
-clear hter_min
+%addpath Other_codes/
+%clear hter_min
 %
  %fold = 10;
  %c = cvpartition(labels,  'kfold' , fold);
@@ -55,11 +55,11 @@ for i=1 : fold
    vLabels = labels(vIdxs,1);  % create test labels
    [pLabels, scores] = SVM_Hist_Int_Kernel(trainMatrix,trainLabels,vMatrix,1,1024);
     
-   hter_min(i) = hter(scores(find(vLabels==0),1),scores(find(vLabels==1),1),[],0);
+  % hter_min(i) = hter(scores(find(vLabels==0),1),scores(find(vLabels==1),1),[],0);
    f_measure(i) = Evaluate(vLabels,pLabels);
 
    disp(i)
 end
 %
-mean(hter_min)
+%mean(hter_min)
 mean(f_measure)
